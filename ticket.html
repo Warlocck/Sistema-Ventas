@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket de Venta</title>
+    <style>
+        body {
+            font-family: 'Courier New', 'Courier New';
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        .container {
+            width: 50%; /* Ancho total del ticket en pixels */
+            margin: 10px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        .titulo {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .titulo h2 {
+            margin-bottom: 0;
+        }
+
+        .tienda .sinborde{
+            font-family: 'Courier New', 'Courier New';
+            border: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        .tienda .tienda__hijo {
+            margin: 0.3rem;
+        }
+
+        .tienda{
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .info span {
+            font-weight: bold;
+        }
+        .productos {
+            margin-top: 5px;
+            font-size: 12px;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+        }
+        .productos table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .productos th, .productos td {
+            border-bottom: 1px solid #ccc;
+            padding: 3px;
+            text-align: left;
+            max-width: 60px; /* Ajusta el ancho máximo de las celdas para evitar que el contenido sobresalga */
+            word-wrap: break-word; /* Permite que el texto se ajuste dentro del ancho máximo especificado */
+        }
+        .productos th:last-child, .productos td:last-child {
+            text-align: right;
+        }
+        .total {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .total .total_label{
+            margin: 0.3rem;
+            text-align: left;
+            display: grid;
+            grid-template-rows: 0;
+        }
+
+        .total_label .price{
+            text-align: right;
+        }
+
+
+        .total .g{
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .total .g .price{
+            margin-top: 12px;
+            font-size: 12px;
+        }
+
+        .nota {
+            margin-top: 5px;
+            font-size: 12px;
+            text-align: justify;
+        }
+        .footer {
+            margin-top: 10px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .productos th.cantidad {
+            width: 50px;
+        }
+        .productos th.descripcion {
+            width: 300px;
+        }
+        .productos th.precio {
+            width: 100px;
+        }
+        .productos th.importe {
+            width: 100px;
+        }
+
+        .thead tr{
+            width: 200rem;
+        }
+
+        .productos th.cantidad {
+            width: 50px;
+        }
+        .productos th.descripcion {
+            width: 350px;
+        }
+        .productos th.precio {
+            width: 100px;
+        }
+        .productos th.importe {
+            width: 100px;
+        }
+
+        .info {
+            margin-top: 20px;
+            font-size: 12px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            column-gap: 0.5rem;
+            font-size: 12px;
+            grid-template-rows: 1.3rem 1.3rem;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .info .info_label {
+            margin: 0;
+        }
+
+        .info .d {
+            margin-bottom: 0.3rem;
+        }
+        
+        .cabecera{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            column-gap: 0.5rem;
+            font-size: 12px;
+            grid-template-rows: 1.3rem 1.3rem;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .cabecera_label {
+            margin: 0;
+        }
+
+        .container_image{
+            width: 100%;
+            text-align: center;
+        }
+
+        .container_image .image{
+            width: 35%;
+        }
+
+        .button_regresar {
+            width: 100%;
+        }
+
+        .button_regresar .button{
+            position: absolute;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 0.4rem;
+            width: 8rem;
+            height: 3rem;
+            top: 46rem;
+            left: 2rem;
+        }
+
+        .button:hover{
+            cursor: pointer;
+        }
+        
+    </style>
+
+    <script>
+        
+        //Funcion para regresar a lapagina index.html
+        function pageLoad() {
+            window.location.href = "index.html";
+        }
+
+        function getQueryParams() {
+            const params = {};
+            const queryString = window.location.search.substring(1);
+            const queries = queryString.split("&");
+            queries.forEach(function(query) {
+                const pair = query.split("=");
+                params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+            });
+            console.log(params);
+            return params;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = getQueryParams();
+            
+            // Mostrar los datos del cliente, punto de venta y total
+            const cliente = params.cliente;
+            const nroSerie = params.nroSerie;
+            const puntoVenta = params.puntoVenta;
+            const codigoVenta = params.codigoVenta;
+            const total = params.total;
+            const fechaActual = params.fechaActual;
+            const horaFormateada = params.horaFormateada;
+            const ruc = params.ruc;
+            const direccion = params.direccion;
+            const ciudad = params.ciudad;
+            const vendedor = params.vendedor;
+            const nroCaja = params.nroCaja;
+
+            // Procesar los detalles de los productos
+            const detalles = JSON.parse(params.detalles);
+            const tbody = document.querySelector('.productos tbody');
+            detalles.forEach((detalle, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${detalle.cantidad}</td>
+                    <td>${detalle.producto}</td>
+                    <td>${detalle.precio}</td>
+                    <td>${detalle.total}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            //Agregando la primera cabecera
+            document.getElementById('nro-serie').innerHTML = ' ' + nroSerie;
+            document.getElementById('codigoVenta').innerHTML = ' ' + codigoVenta;;
+            document.getElementById('total').innerHTML = 'S/. ' + total;
+            document.getElementById('ruc').innerHTML = ' ' + ruc;
+            document.getElementById('gravada').innerHTML ='S/. ' + gravada(total);
+            document.getElementById('igv').innerHTML ='S/. ' + igv(total, gravada(total));
+            document.getElementById('fecha').innerHTML = ' ' + fechaActual;
+            document.getElementById('hora').innerHTML = ' ' + horaFormateada;
+            document.getElementById('tipodoc').innerHTML = ' ' + 'Boleta Electrónica';
+            document.getElementById('nroCaja').innerHTML = ' ' + nroCaja;
+            document.getElementById('vendedor').innerHTML = ' ' + vendedor;
+            document.getElementById('nombre_ptv').value = puntoVenta;
+            document.getElementById('ciudad').value = ciudad;
+            document.getElementById('direccion').value = direccion;
+
+        });
+
+        function igv(total, valorventa) {
+            const igv = Number.parseFloat(total - valorventa).toFixed(2);
+            return igv;
+        }
+
+        function gravada(total) {
+            const valorventa = Number.parseFloat(total / 1.18).toFixed(2);
+            return valorventa;
+        }
+
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="titulo">
+            <h2>MI TIENDA</h2>
+        </div>
+        <div class="tienda">
+            <p class="tienda__hijo a"><input type="text" class="sinborde" id="direccion" name="direccion" placeholder="DIRECCION" readonly></p>
+            <p class="tienda__hijo b"><input type="text" class="sinborde" id="ciudad" name="ciudad" placeholder="CIUDAD" readonly></p>
+            <p class="tienda__hijo c"><input type="text" class="sinborde" id="nombre_ptv" name="nombre_ptv" placeholder="PUNTO DE VENTA" readonly></p>
+        </div>
+        <div class="info">
+            <p class="info_label a"><span>Núm ticket:</span><span id="nro-serie"></span></p>
+            <p class="info_label b"><span>RUC:</span><span id="ruc"></span></p>
+            <p class="info_label c"><span>T. documento:</span><span id="tipodoc"></span></p>
+            <p class="cabecera_label c"><span>Tienda:</span><span id="codigoVenta"></span></p>
+        </div>
+
+        <div class="cabecera"> <!-----cabecera GRID---->
+            <p class="cabecera_label a"><span>Vendedor:</span><span id="vendedor"></span> </p>
+            <p class="cabecera_label b"><span>Nro. Caja:</span><span id="nroCaja"></span> </p>
+            <p class="info_label d"><span>Hora:</span><span id="hora"></span> </p>
+            <p class="cabecera_label d"><span>Fecha:</span><span id="fecha"></span> </p>
+        </div>
+
+        <div class="productos">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cant.</th>
+                        <th>Descripción</th>
+                        <th>Precio Unitario</th>
+                        <th>Importe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Los productos se añadirán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+        <div class="total">
+            <p class="total_label a">OP. Exonerada: <span class="price">S/. 0.00</span></p>
+            <p class="total_label b">OP. Inafecta: <span class="price">S/. 0.00</span></p>
+            <p class="total_label c">OP. Gravada: <span class="price" id="gravada">S/. 0.00</span></p>
+            <p class="total_label d">OP. Gratuita: <span class="price">S/. 0.00</span></p>
+            <p class="total_label e">IGV: <span class="price" id="igv">S/. 0.00</span></p>
+            <p class="total_label f">Descuento: <span class="price">S/. 0.00</span></p>
+            <p class="total_label g">Total: <span class="price" id="total">S/. 0.00</span></p>
+        </div>
+        <div>
+            <p></p>
+            <p></p>
+            <p></p>
+            <p></p>
+            <p></p>
+        </div>
+        <div class="footer">
+            <p>¡¡¡AGRADECEMOS SU PREFERENCIA VUELVA PRONTO!!!</p>
+        </div>
+        <div class="container_image">
+            <img class="image" src="resources/QRCODE.png" />
+        </div>
+    </div>
+
+    <div class="button_regresar">
+        <button onclick="pageLoad()" class="button" id="buttonRegresar">Regresar</button>
+    </div>
+
+</body>
+</html>

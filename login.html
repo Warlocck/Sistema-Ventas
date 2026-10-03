@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión</title>
+    <link rel="preload" href="styles/login.css" as="style">
+    <link rel="stylesheet" href="styles/login.css">
+    <script>
+
+        async function validation(event) {
+            event.preventDefault();
+            const usuario = document.getElementById("campo_usuario").value;
+            const pw = document.getElementById("campo_password").value;
+            try {
+                const response = await fetch(`validation.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ usuario: usuario, pw: pw })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const vendedor = result.nombreVendedor;
+                    const nroCaja = result.nroCaja;
+                    const url = `index.html?vendedor=${encodeURIComponent(vendedor)}&nroCaja=${encodeURIComponent((nroCaja))}`;
+                    window.location.href = url;
+                } else {
+                    alert('Usuario o contraseña incorrectos');
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Hubo un problema con la autenticación');
+                window.location.reload();
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Bienvenido</h1>
+    </header>
+    <div class="login-container">
+        <div class="login-box" style="position: relative;">
+            <form class="section" method="post" id="login-form" onsubmit="validation(event)">
+                <input type="text" id="campo_usuario" name="usuario" placeholder="Usuario" required>
+                <input type="password" id="campo_password" name="pw" placeholder="Contraseña" required>
+                <div class="login-button-container">
+                    <button type="submit" form="login-form" class="login-button" id="login">Login</button>
+                </div>
+            </form>
+            <a href="#" class="contact-info">¿Olvidaste tus credenciales?</a><span class="contact-info contact-number">Contacta a 923442554</span>
+        </div>
+    </div>
+    
+</body>
+</html>

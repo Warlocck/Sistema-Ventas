@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Ticket de Venta</title>
+    <link rel="preload" href="styles/style.css" as="style">
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+
+        let nroSerieActual = 0;
+        let nroSerieAsignado = false;
+        let ruc;
+        let direccion;
+        let ciudad;
+        let email;
+        let fecha = new Date(); //Fecha actual;
+        let vendedor;
+        let nroCaja;
+
+        async function buscarVenta(event) {
+            event.preventDefault();
+            const codigoVenta = document.getElementById('codigo-venta').value;
+            const response = await fetch(`buscar_venta.php?codigo_venta=${codigoVenta}`);
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('nombre-venta').value = data.nombre_venta;
+                ruc = data.ruc;
+                ciudad = data.ciudad;
+                direccion = data.direccion;
+                email = data.email;
+            } else {
+                alert(data.message);
+            }
+        };
+
+                //funcion que lee la url del vendedor
+        function getQueryParams() {
+            const params = {};
+            const queryString = window.location.search.substring(1);
+            const queries = queryString.split("&");
+            queries.forEach(function(query) {
+                const pair = query.split("=");
+                params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+            });
+            console.log(params);
+            return params;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const params = getQueryParams();
+            vendedor = params.vendedor;
+            nroCaja = params.nroCaja;
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('confirmar-compra').addEventListener('click', function() {
+                const cliente = document.getElementById('nombre_cliente').value;
+                const nroSerie = document.getElementById('nro-serie').value;
+                const puntoVenta = document.getElementById('nombre-venta').value;
+                const codigoVenta = document.getElementById('codigo-venta').value;
+                const detalles = [];
+                const fechaActual = fecha.toLocaleDateString();
+                const horas = fecha.getHours().toString().padStart(2, '0');
+                const minutos = fecha.getMinutes().toString().padStart(2, '0');
+                const segundos = fecha.getSeconds().toString().padStart(2, '0');
+                const horaFormateada = `${horas}:${minutos}:${segundos}`;
+                
+                const total = document.getElementById('total-compra').textContent.replace('Total: S/. ', '');
+
+                document.querySelectorAll('#detalles-compra tbody tr').forEach(function(row) {
+                    const cells = row.querySelectorAll('td');
+                    detalles.push({
+                        producto: cells[1].textContent,
+                        codigo: cells[2].textContent,
+                        precio: cells[3].textContent,
+                        cantidad: cells[4].textContent,
+                        total: cells[5].textContent
+                    });
+                });
+
+                const url = `ticket.html?cliente=${encodeURIComponent(cliente)}&nroSerie=${encodeURIComponent(nroSerie)}&puntoVenta=${encodeURIComponent(puntoVenta)}&codigoVenta=${encodeURIComponent(codigoVenta)}&ruc=${encodeURIComponent(ruc)}&direccion=${encodeURIComponent(direccion)}&ciudad=${encodeURIComponent(ciudad)}&detalles=${encodeURIComponent(JSON.stringify(detalles))}&total=${encodeURIComponent(total)}&fechaActual=${encodeURIComponent(fechaActual)}&horaFormateada=${encodeURIComponent(horaFormateada)}&vendedor=${encodeURIComponent(vendedor)}&nroCaja=${encodeURIComponent(nroCaja)}`;
+                window.location.href = url;
+            });
+        });
+
+
+        function obtenerNroSerie() {
+            const nroSerie = nroSerieActual.toString().padStart(4, '0');
+            if (nroSerieActual <= 9999) {
+                nroSerieActual++;
+            } else {
+                nroSerieActual = 1;
+            }
+            return nroSerie;
+        }
+
+        function asignarNroSerie() {
+            if(!nroSerieAsignado){
+                mostrarNroSerie();
+                nroSerieAsignado = true;
+            }
+        }
+
+        function mostrarNroSerie() {
+            document.getElementById('nro-serie').value = obtenerNroSerie();
+        }
+
+        async function buscarCliente(event) {
+            event.preventDefault(); // Evitar el envío del formulario por defecto
+            const dni = document.getElementById('dni').value;
+            const response = await fetch(`buscar_cliente.php?dni=${dni}`);
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('nombre_cliente').value = data.nombre_cliente;
+            } else {
+                alert(data.message);
+            }
+        };
+
+        async function buscarArticulo(event) {
+            event.preventDefault(); // Evitar el envío del formulario por defecto
+            const codigoArticulo = document.getElementById('codigo-articulo').value;
+            const response = await fetch(`buscar_articulo.php?codigo_articulo=${codigoArticulo}`);
+            const data = await response.json();
+            if (data.success) {
+                document.getElementById('nombre_articulo').value = data.nombre_articulo;
+                document.getElementById('precio_articulo').value = data.preciounitario;
+            } else {
+                alert(data.message);
+            }
+        };
+
+        function agregarArticulo(event) {
+            event.preventDefault();
+            const codigoArticulo = document.getElementById('codigo-articulo').value;
+            const nombreArticulo = document.getElementById('nombre_articulo').value;
+            const precioArticulo = document.getElementById('precio_articulo').value;
+            const cantidadArticulo = document.getElementById('cantidad_articulo').value;
+            const totalArticulo = Number.parseFloat(parseFloat(precioArticulo.replace('S/.', '')) * parseInt(cantidadArticulo)).toFixed(2);
+
+            const tbody = document.getElementById('detalles-compra').getElementsByTagName('tbody')[0];
+            const filaArticulo = document.createElement('tr');
+
+            filaArticulo.innerHTML = `
+                <td>${tbody.getElementsByTagName('tr').length + 1}</td>
+                <td>${nombreArticulo}</td>
+                <td>${codigoArticulo}</td>
+                <td>${precioArticulo}</td>
+                <td>${cantidadArticulo}</td>
+                <td>S/. ${totalArticulo}</td>
+                <td><button type="button" class="remove-producto" onclick="eliminarArticulo(this)"><i class="fas fa-trash"></i></button></td>
+            `;
+
+            tbody.appendChild(filaArticulo);
+            actualizarTotalCompra();
+            asignarNroSerie();
+    
+        }
+
+        function actualizarTotalCompra() {
+            const tbody = document.getElementById('detalles-compra').getElementsByTagName('tbody')[0];
+            let totalCompra = 0;
+
+            tbody.querySelectorAll('tr').forEach(function(row) {
+                const total = parseFloat(row.cells[5].textContent.replace('S/. ', '').trim());
+                totalCompra += total;
+            });
+
+            document.getElementById('total-compra').textContent = 'Total: S/. ' + totalCompra.toFixed(2);
+        }
+
+        function eliminarArticulo(button) {
+            const row = button.closest('tr');
+            row.remove();
+            actualizarTotalCompra();
+        }
+
+        window.onload = function () {
+            mostrarNroSerie();
+        };
+
+        
+
+    </script>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-receipt"></i> SISTEMA DE TICKET DE VENTA</h1>
+    </header>
+    <div class="container">
+        <div class="left-column">
+            <form class="section" id="form-buscar-cliente" onsubmit="buscarCliente(event)">   
+                <h3><i class="fas fa-user"></i> Datos del cliente</h3>
+                <label for="dni">DNI</label>
+                <div class="input-group">
+                    <input type="text" id="dni" name="dni">
+                    <button type="submit" id="buscar-cliente"><i class="fas fa-search"></i></button>
+                </div>
+                <input type="text" id="nombre_cliente" name="nombre_cliente" placeholder="CLIENTE" readonly>
+            </form>
+
+            <form class="section" id="form-buscar-articulo" onsubmit="buscarArticulo(event)">
+                <h3><i class="fas fa-box"></i> Artículo</h3>
+                <label for="codigo-articulo">Código</label>
+                <div class="input-group">
+                    <input type="text" id="codigo-articulo" name="codigo_articulo">
+                    <button type="submit" id="buscar-articulo"><i class="fas fa-search"></i></button>
+                </div>
+                <input type="text" id="nombre_articulo" name="nombre_articulo" placeholder="PRODUCTO" readonly>
+                <label for="precio-articulo">Precio</label>
+                <input type="text" id="precio_articulo" name="precio" placeholder="S/. 0.00" readonly>
+                <label for="cantidad-articulo">Cantidad</label>
+                <input type="number" id="cantidad_articulo" name="cantidad_articulo" min="1" value="1">
+                <button type="submit" onclick="agregarArticulo(event)" id="agregar-producto"><i class="fas fa-plus"></i> Agregar Producto</button>
+            </form>
+            <form class="section" id="form-buscar-venta" onsubmit="buscarVenta(event)">
+                <h3><i class="fas fa-map-marker-alt"></i> Punto de venta</h3>
+                <label for="codigo-venta">Código</label>
+                <div class="input-group">
+                    <input type="text" id="codigo-venta" name="codigo_venta">
+                    <button type="submit" id="buscar-venta"><i class="fas fa-search"></i></button>
+                </div>
+                <input type="text" id="nombre-venta" placeholder="DIRECCIÓN" readonly>
+            </form>
+        </div>
+        <div class="right-column">
+            <div class="section details">
+                <h3><i class="fas fa-shopping-cart"></i> Detalles de la compra</h3>
+                <div class="serial-number">
+                    <label for="nro-serie">Nro. Serie</label>
+                    <input type="text" id="nro-serie" placeholder="0000" readonly>
+                </div>
+                <div class="tip-doc">
+                    <label for="tip-doc">Tipo de Documento</label>
+                    <select id="tip-doc" name="tip-doc">
+                        <option value="boleta">Boleta Electronica</option>
+                        <option value="factura">Factura Electronica</option>
+                    </select>
+                </div>
+                <table id="detalles-compra">
+                    <thead>
+                        <tr>
+                            <th>Nro</th>
+                            <th>Producto</th>
+                            <th>Código</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Los productos se añadirán aquí dinámicamente -->
+                    </tbody>
+                </table>
+                <div class="total">
+                    <button class="generate"><i class="fas fa-ticket-alt"></i> Generar ticket</button>
+                    <button class="cancel"><i class="fas fa-times"></i> Cancelar</button>
+                    <span id="total-compra">Total: S/. 0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div id="modal-confirmacion" class="modal">
+        <div class="modal-content">
+            <h2>Confirmar Compra</h2>
+            <p>¿Estás seguro de que deseas proceder con el pago?</p>
+            <div class="modal-buttons">
+                <button id="confirmar-compra">Sí</button>
+                <button id="cancelar-compra">No</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+    // Función para mostrar el modal de confirmación
+    function mostrarModalConfirmacion() {
+        var modal = document.getElementById('modal-confirmacion');
+        modal.style.display = 'block';
+    }
+
+    // Función para cerrar el modal de confirmación
+    function cerrarModalConfirmacion() {
+        var modal = document.getElementById('modal-confirmacion');
+        modal.style.display = 'none';
+    }
+
+    // Event listener para el botón "Generar ticket"
+    var generarTicketBtn = document.querySelector('.generate');
+    generarTicketBtn.addEventListener('click', function() {
+        mostrarModalConfirmacion();
+    });
+
+    // Event listener para el botón "Cancelar" del modal
+    var cancelarCompraBtn = document.getElementById('cancelar-compra');
+    cancelarCompraBtn.addEventListener('click', function() {
+        cerrarModalConfirmacion();
+    });
+
+
+    const modal = document.getElementById("modal");
+    const generarButton = document.getElementById(".generate");
+    const cancelarButton = document.getElementById(".cancel");
+    const confirmarGenerar = document.getElementById("confirmar-generar");
+    const cancelarGenerar = document.getElementById("cancelar-generar");
+
+        generarButton.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        cancelarButton.onclick = function() {
+            // Lógica para cancelar la operación
+        }
+
+        confirmarGenerar.onclick = function() {
+            modal.style.display = "none";
+            // Lógica para generar el ticket de venta
+        }
+
+        cancelarGenerar.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        // Agregar evento de clic para eliminar productos de la lista
+        document.querySelectorAll(".remove-producto").forEach(function(button){
+            button.addEventListener("click", function(){
+            this.closet("tr").remove();
+            });
+        });
+</script>
+
+</body>
+</html>

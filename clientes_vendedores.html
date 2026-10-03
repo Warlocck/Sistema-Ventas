@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingreso de Datos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOM3/FzKjw6u7c0X0x5zqFZyQ7ptpQp02R6Qqv6" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #212529;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            font-size: 2rem;
+            color: #28a745;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+        }
+        .form-section {
+            margin-bottom: 20px;
+        }
+        .form-section h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: #343a40;
+        }
+        .form-section label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+        .form-section input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+        .form-section button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #28a745;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .form-section button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-database"></i> </h1>
+    </header>
+    <div class="container">
+        <!-- Formulario para Clientes -->
+        <div class="form-section">
+            <h3><i class="fas fa-user"></i> Clientes</h3>
+            <form action="clientes.php" method="POST">
+                <label for="id-cliente">ID Cliente</label>
+                <input type="number" id="id-cliente" name="id-cliente" placeholder="Ingrese el ID del cliente" required>
+                
+                <label for="nombre-cliente">Nombre</label>
+                <input type="text" id="nombre-cliente" name="nombre-cliente" placeholder="Ingrese el nombre del cliente" required>
+                
+                <label for="apellido-cliente">Apellido</label>
+                <input type="text" id="apellido-cliente" name="apellido-cliente" placeholder="Ingrese el apellido del cliente" required>
+                
+                <label for="dni-cliente">DNI</label>
+                <input type="text" id="dni-cliente" name="dni-cliente" placeholder="Ingrese el DNI del cliente" required>
+                
+                <button type="submit"><i class="fas fa-save"></i> Guardar</button>
+            </form>
+        </div>
+
+        <!-- Formulario para Vendedores -->
+        <div class="form-section">
+            <h3><i class="fas fa-user-tie"></i> Vendedores</h3>
+            <form action="vendedores.php" method="POST">
+                <label for="id-vendedor">ID Vendedor</label>
+                <input type="number" id="id-vendedor" name="id-vendedor" placeholder="Ingrese el ID del vendedor" required>
+                
+                <label for="nombre-vendedor">Nombre</label>
+                <input type="text" id="nombre-vendedor" name="nombre-vendedor" placeholder="Ingrese el nombre del vendedor" required>
+                
+                <label for="apellido-vendedor">Apellido</label>
+                <input type="text" id="apellido-vendedor" name="apellido-vendedor" placeholder="Ingrese el apellido del vendedor" required>
+                
+                <label for="dni-vendedor">DNI</label>
+                <input type="text" id="dni-vendedor" name="dni-vendedor" placeholder="Ingrese el DNI del vendedor" required>
+                
+                <button type="submit"><i class="fas fa-save"></i> Guardar</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
